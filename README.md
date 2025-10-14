@@ -187,3 +187,107 @@ plink2 --pfile /path/to/pca/commonVar_SNParray_yourCohort_hg19 \
        --out /path/to/pca/pca_commonVar_SNParray_yourCohort_hg19
 ```
 
+## 5) Identificazione e Rimozione degli Outlier
+
+Dopo aver eseguito la PCA, un passaggio fondamentale è l’identificazione degli **outlier**.
+Questi campioni possono rappresentare individui con diversa origine ancestrale, contaminazioni del campione o artefatti tecnici.
+Rimuoverli è importante perché possono distorcere le componenti principali e compromettere le analisi successive.
+
+Per identificare outlier multidimensionali è possibile utilizzare la **[distanza di Mahalanobis](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/mahalanobis)**.
+
+Questa metrica misura la distanza di ciascuna osservazione dal centro della distribuzione dei dati (cioè il vettore delle medie), tenendo conto della struttura di covarianza tra le variabili.
+In questo modo è possibile rilevare outlier considerando contemporaneamente più componenti principali (ad esempio le prime 10 PC), fornendo un criterio più robusto e affidabile rispetto agli approcci univariati.
+
+---
+
+### Implementazione in R
+
+Il seguente script R può essere utilizzato per identificare gli outlier a partire dal file `.eigenvec` generato da PLINK.
+Lo script esegue i seguenti passaggi:
+
+1. Carica il file degli autovettori (`.eigenvec`).
+2. Calcola la distanza di Mahalanobis per ciascun campione utilizzando le prime 10 componenti principali (PC).
+   *(Si consiglia di utilizzare le prime 10 PC poiché sono quelle salvate di default da PLINK).*
+3. Imposta la soglia basata sulla distribuzione del chi-quadro, specificando quantile e gradi di libertà.
+   In questo caso viene utilizzato il quantile **0.999** e il numero di gradi di libertà pari al numero di PC utilizzate.
+4. Segnala come outlier tutti i campioni che superano la soglia.
+5. Genera un grafico PC1 vs PC2 con gli outlier evidenziati.
+6. Crea un file di testo (`outliers_to_remove.txt`) contenente gli ID dei campioni da rimuovere.
+
+---
+
+### Prerequisiti in R
+
+Assicurarsi di avere installate le librerie **MASS** e **ggplot2**:
+
+```r
+install.packages("MASS")
+install.packages("ggplot2")
+```
+
+---
+
+### Codice R per l’Identificazione degli Outlier
+
+```r
+# Carica le librerie necessarie
+library(MASS)
+library(ggplot2)
+
+# Specifica il percorso del file .eigenvec
+eigenvectors <- "merged_cohorts.eigenvec" # <-- MODIFICARE CON IL PROPRIO PERCORSO
+# Nota: Plink non scrive un'intestazione, quindi deve essere creata manualmente
+
+# --- Analisi degli Outlier ---
+
+# Seleziona le prime 10 Componenti Principali per l'analisi
+pcs_to_use <- 10
+pcs <- as.matrix(eigenvectors[, paste0("PC", 1:pcs_to_use)])
+
+# Calcola il centro (media) e la matrice di covarianza delle PC
+center <- colMeans(pcs)
+covmat <- cov(pcs)
+
+# Calcola la distanza di Mahalanobis per ciascun campione
+mahal <- mahalanobis(pcs, center, covmat)
+
+# Imposta la soglia per definire un outlier
+# Usiamo il quantile 0.999 della distribuzione Chi-quadro
+# I gradi di libertà (df) corrispondono al numero di PC utilizzate
+threshold <- qchisq(0.999, df = pcs_to_use)
+
+# Aggiunge una colonna booleana (TRUE/FALSE) per identificare gli outlier
+eigenvectors$is_outlier <- mahal > threshold
+
+# Stampa il numero di outlier identificati nella console
+cat("Numero di outlier rilevati:", sum(eigenvectors$is_outlier), "\n")
+
+# Crea un grafico a dispersione PC1 vs PC2
+# I campioni outlier verranno colorati in rosso
+ggplot(eigenvectors, aes(x = PC1, y = PC2, color = is_outlier)) +
+  geom_point(alpha = 0.7) +
+  scale_color_manual(values = c("FALSE" = "black", "TRUE" = "red"), name = "Outlier?") +
+  theme_minimal() +
+  labs(title = "Rilevamento degli Outlier con Distanza di Mahalanobis",
+       subtitle = paste(sum(eigenvectors$is_outlier), "outlier rilevati"),
+       x = "Componente Principale 1 (PC1)",
+       y = "Componente Principale 2 (PC2)") +
+  coord_fixed()
+
+# Estrae gli ID dei campioni outlier
+# Il flag --remove di Plink richiede un file a due colonne (FID e IID) senza intestazione
+outliers_to_remove <- eigenvectors[eigenvectors$is_outlier, c("ID")]
+
+# Scrive il file che Plink utilizzerà per la rimozione
+output_file <- "outliers_to_remove.txt"
+write.table(outliers_to_remove,
+            file = output_file,
+            sep = "\t", 
+            row.names = FALSE, 
+            col.names = FALSE, 
+            quote = FALSE)
+
+cat("File '", output_file, "' creato con", nrow(outliers_to_remove), "campioni da rimuovere.\n")
+```
+
+

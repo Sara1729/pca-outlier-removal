@@ -83,15 +83,9 @@ Questo formato è essenziale per eseguire correttamente l’intersezione tra div
 
 ## Descrizione delle Coorti
 
-* **SNP_array**
+* **[SNP_array](https://doi.org/10.1038/ejhg.2015.233)**: utilizzato come coorte di riferimento, è fornito in build hg19, include 300 campioni italiani e contiene 14861 varianti.
 
-  * Build: **hg19**
-  * Numero di campioni: **300**
-  * Numero di varianti selezionate: **14861**
-
-* **your_cohort**
-
-  * Seconda coorte da confrontare con SNP_array.
+* **your_cohort** Seconda coorte da confrontare con SNP_array.
 
 ---
 

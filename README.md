@@ -9,7 +9,7 @@ In genetica, l’**analisi delle componenti principali (PCA)** è uno strumento 
 Nel nostro caso, l’obiettivo è mettere in evidenza la **stratificazione genetica della popolazione italiana**.
 Per farlo, sono state selezionate 27575 varianti tramite *Linkage Disequilibrium (LD) pruning*, partendo da una coorte di 1686 individui italiani [[1]](https://doi.org/10.1002/humu.24156).
 
-A partire da un dataset SNP array contenente 555 individui italiani, sono state poi estratte solo le varianti comuni alle 27575 selezionate con LD pruning, ottenendo così una coorte di riferimento di 555 individui con 14861 varianti.
+A partire da un dataset SNP array contenente 555 individui italiani, sono state poi estratte solo le varianti comuni alle 27575 selezionate con LD pruning, ottenendo così una coorte di riferimento di 300 individui con 14861 varianti [[2]](https://doi.org/10.1038/ejhg.2015.233).
 
 ## Struttura dei dati di input
 
@@ -92,7 +92,7 @@ Questo formato è essenziale per eseguire correttamente l’intersezione tra div
 * **SNP_array**
 
   * Build: **hg19**
-  * Numero di campioni: **555**
+  * Numero di campioni: **300**
   * Numero di varianti selezionate: **14861**
 
 * **your_cohort**
@@ -215,7 +215,7 @@ Dopo aver eseguito la PCA, un passaggio fondamentale è l’identificazione degl
 Questi campioni possono rappresentare individui con diversa origine ancestrale, contaminazioni del campione o artefatti tecnici.
 Rimuoverli è importante perché possono distorcere le componenti principali e compromettere le analisi successive.
 
-Per identificare outlier multidimensionali è possibile utilizzare la **[distanza di Mahalanobis](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/mahalanobis)**.
+Per identificare outlier multidimensionali è possibile utilizzare la **distanza di Mahalanobis**[[1]](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/mahalanobis) [[2]](https://www.cfholbert.com/blog/outlier_mahalanobis_distance/).
 
 Questa metrica misura la distanza di ciascuna osservazione dal centro della distribuzione dei dati (cioè il vettore delle medie), tenendo conto della struttura di covarianza tra le variabili.
 In questo modo è possibile rilevare outlier considerando contemporaneamente più componenti principali (ad esempio le prime 10 PC), fornendo un criterio più robusto e affidabile rispetto agli approcci univariati.
@@ -230,8 +230,8 @@ Lo script esegue i seguenti passaggi:
 1. Carica il file degli autovettori (`.eigenvec`).
 2. Calcola la distanza di Mahalanobis per ciascun campione utilizzando le prime 10 componenti principali (PC).
    *(Si consiglia di utilizzare le prime 10 PC poiché sono quelle salvate di default da PLINK).*
-3. Imposta la soglia basata sulla distribuzione del chi-quadro, specificando quantile e gradi di libertà.
-   In questo caso viene utilizzato il quantile **0.999** e il numero di gradi di libertà pari al numero di PC utilizzate.
+3. Imposta la soglia basata sulla distribuzione del chi-quadro, specificando quantile e gradi di libertà (numero di componenti principali).
+   In questo caso viene utilizzato il quantile **0.999**.
 4. Segnala come outlier tutti i campioni che superano la soglia.
 5. Genera un grafico PC1 vs PC2 con gli outlier evidenziati.
 6. Crea un file di testo (`outliers_to_remove.txt`) contenente gli ID dei campioni da rimuovere.

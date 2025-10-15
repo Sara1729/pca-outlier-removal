@@ -296,7 +296,7 @@ write.table(outliers_to_remove,
             col.names = FALSE, 
             quote = FALSE)
 
-cat("File '", output_file, "' creato con", nrow(outliers_to_remove), "campioni da rimuovere.\n")
+cat("File '", output_file, "' contenente", nrow(outliers_to_remove), "campioni da rimuovere.\n")
 ```
 
 

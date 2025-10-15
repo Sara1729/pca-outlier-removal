@@ -36,9 +36,9 @@ Quindi il primo atuovalore definisce la prima componente principale (PC1) e la s
 
 Per eseguire questa pipeline sono richiesti:
 
-* **PLINK v1.9/v2** (installato direttamente o tramite [Docker container[1]](https://github.com/asherkhb/plink-docker) [[2]](https://hub.docker.com/r/miguelpmachado/plink_2.0))
+* **PLINK v1.9/v2** (installato direttamente o tramite Docker container [[1]](https://github.com/asherkhb/plink-docker) [[2]](https://hub.docker.com/r/miguelpmachado/plink_2.0))
 
-* **BCFtools** (installato direttamente o tramite [Docker container](https://github.com/samtools/bcftools))
+* **BCFtools** (installato direttamente o tramite Docker container [[3]](https://github.com/samtools/bcftools))
 
 * **File di conversione dei nomi dei cromosomi:**
 

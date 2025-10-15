@@ -284,7 +284,7 @@ ggplot(eigenvectors, aes(x = PC1, y = PC2, color = is_outlier)) +
   coord_fixed()
 
 # Estrae gli ID dei campioni outlier
-# Il flag --remove di Plink richiede un file a due colonne (FID e IID) senza intestazione
+# Il flag --remove di Plink richiede un file a una o due colonne ID (a seconda della versione di Plink) senza intestazione
 outliers_to_remove <- eigenvectors[eigenvectors$is_outlier, c("ID")]
 
 # Scrive il file che Plink utilizzerà per la rimozione

@@ -1,18 +1,40 @@
 # PCA da file VCF
 
-Questo progetto illustra come eseguire un'**Analisi delle Componenti Principali (PCA)** partendo da uno o più file VCF (aggregati o non aggregati).
+Questa guida descrive come eseguire un’**Analisi delle Componenti Principali (PCA)** e la successiva **identificazione e rimozione degli outlier** nello spazio delle componenti principali, partendo da uno o più file VCF — sia aggregati che non aggregati.
 
 ## Introduzione
 
-Questo documento descrive il processo per effettuare una PCA a partire da file VCF.
-È **necessario** che i file VCF contengano il campo `GT` (genotipo), poiché gli altri campi non vengono considerati in questa analisi.
+In genetica, l’**analisi delle componenti principali (PCA)** è uno strumento fondamentale per lo studio della **stratificazione della popolazione**, ossia per identificare e visualizzare le differenze di background genetico tra individui o gruppi di individui.
 
-La PCA è uno strumento di clustering semplice ma potente, basato sulla decomposizione della matrice dei dati.
-Nel nostro caso, le **righe** rappresentano le varianti e le **colonne** rappresentano i genotipi dei campioni.
-L’obiettivo è trovare autovalori (eigenvalues) e autovettori (eigenvectors).
+Nel nostro caso, l’obiettivo è mettere in evidenza la **stratificazione genetica della popolazione italiana**.
+Per farlo, sono state selezionate 27575 varianti tramite *Linkage Disequilibrium (LD) pruning*, partendo da una coorte di 1686 individui italiani [[1]](https://doi.org/10.1002/humu.24156).
 
-Gli autovalori vengono ordinati in modo decrescente: il primo autovalore identifica la prima componente principale (PC1) e la sua direzione nello spazio delle componenti principali è determinata dall’autovettore corrispondente.
-In sintesi, la PCA consente di individuare uno spazio a dimensionalità ridotta che descrive al meglio la distribuzione dei dati.
+A partire da un dataset SNP array contenente 555 individui italiani, sono state poi estratte solo le varianti comuni alle 27575 selezionate con LD pruning, ottenendo così una coorte di riferimento di 555 individui con 14861 varianti.
+
+## Struttura dei dati di input
+
+L’analisi parte da uno o più file **gVCF aggregati**, che devono necessariamente contenere le seguenti colonne principali:
+
+* `CHROM` — cromosoma
+* `POS` — posizione
+* `ID` — identificativo della variante
+* `REF` — allele di riferimento
+* `ALT` — allele alternativo
+
+Inoltre, nella colonna `INFO` deve essere presente il campo **GT (genotipo)**, che rappresenta la base per il calcolo della PCA.
+
+La PCA riduce la dimensionalità di grandi insiemi di dati trasformando un gruppo di variabili potenzialmente correlate in un numero minore di **componenti principali**, che conservano la maggior parte dell’informazione originale.
+
+Nel nostro contesto:
+
+* Le **righe** della matrice di input rappresentano le **varianti**;
+* Le **colonne** rappresentano i **campioni** e i rispettivi genotipi.
+
+L’analisi mira a identificare gli **autovalori (eigenvalues)** e i **vettori propri (eigenvectors)** del sistema.
+Gli autovalori vengono ordinati in modo decrescente:
+
+* il primo autovalore definisce la **prima componente principale (PC1)**,
+* la sua direzione nello spazio delle componenti è determinata dall’**autovettore corrispondente**.
 
 ---
 
@@ -35,7 +57,7 @@ Per eseguire questa pipeline sono richiesti:
      chr22    22
      chrX     X
      ```
-  2. File `chr_name_conv.txt`, con le colonne invertite:
+  2. File `chr_name_convention.txt`, con le colonne invertite:
 
      ```
      1        chr1
@@ -71,9 +93,9 @@ Questo formato è essenziale per eseguire correttamente l’intersezione tra div
 
   * Build: **hg19**
   * Numero di campioni: **555**
-  * Numero di varianti selezionate: **14.861**
+  * Numero di varianti selezionate: **14861**
 
-* **your cohort**
+* **your_cohort**
 
   * Seconda coorte da confrontare con SNP_array.
 
@@ -89,56 +111,56 @@ In questa fase vogliamo assicurarci che:
 Esempio di comando per creare correttamente la colonna `ID`:
 
 ```bash
-bcftools annotate --rename-chrs /path/to/chr_name_conv.txt \
-  /path/to/fixref_splt_merged_file_your_cohort.vcf.gz | \
+bcftools annotate --rename-chrs /path/to/chr_name_convention.txt \
+  /path/to/your_cohort.vcf.gz | \
   bcftools norm -Ou -f /path/to/hg19.fa | \
   bcftools annotate -Oz -x ID -I +'%CHROM:%POS:%REF:%ALT' \
-  -o /path/to/newID_fixref_splt_merged_file_your_cohort.vcf.gz
+  -o /path/to/newID_your_cohort.vcf.gz
 ```
 
 E per garantire che la colonna `CHROM` abbia il prefisso `chr`:
 
 ```bash
 bcftools annotate --rename-chrs /path/to/no_chr_name_convention.txt \
-  /path/to/newID_fixref_splt_merged_file_your_cohort.vcf.gz \
-  -Oz -o /path/to/noCHR_newID_fixref_splt_merged_file_your_cohort.vcf.gz
+  /path/to/newID_your_cohort.vcf.gz \
+  -Oz -o /path/to/noCHR_newID_your_cohort.vcf.gz
 ```
 
 ---
 
 ## 2) Unione delle Coorti
 
-Una volta che entrambi i file VCF sono normalizzati (`SNP_array` e `your cohort`), possiamo cercare le varianti comuni.
+Una volta che entrambi i file VCF sono normalizzati (`SNP_array` e `your_cohort`), possiamo cercare le varianti comuni.
 Le coorti verranno indicate come:
 
 ```
-/path/to/noCHR_newID_fixref_splt_merged_file_SNP_array.vcf.gz \
-/path/to/noCHR_newID_fixref_splt_merged_file_your_cohort.vcf.gz
+/path/to/SNP_array.vcf.gz \
+/path/to/noCHR_newID_your_cohort.vcf.gz
 ```
 
 ### Intersezione delle varianti comuni
 
 ```bash
 bcftools isec -n=2 -w1 \
-  /path/to/noCHR_newID_fixref_splt_merged_file_SNP_array.vcf.gz \
-  /path/to/noCHR_newID_fixref_splt_merged_file_your_cohort.vcf.gz \
+  /path/to/SNP_array.vcf.gz \
+  /path/to/noCHR_newID_your_cohort.vcf.gz \
   -Oz | bcftools query -f '%ID\n' \
   > /path/to/common_ids.txt
 ```
 
-Nel nostro esempio, il numero di varianti comuni è **14.661**.
+Così facendo siamo riusciti a selezionare, tramite la colonna ID, solo le varianti comuni ad entrambe le coorti, quindi possiamo avere al più 14861 varianti.
 
 Ora estraiamo solo le varianti comuni da ciascun file:
 
 ```bash
 bcftools view --include 'ID=@/path/to/common_ids.txt' \
-  /path/to/noCHR_newID_fixref_splt_merged_file_SNP_array.vcf.gz \
+  /path/to/SNP_array.vcf.gz \
   -Oz -o /path/to/common_var_SNP_array.vcf.gz
 ```
 
 ```bash
 bcftools view --include 'ID=@/path/to/common_var/common_ids.txt' \
-  /path/to/noCHR_newID_fixref_splt_merged_file_your_cohort.vcf.gz \
+  /path/to/noCHR_newID_your_cohort.vcf.gz \
   -Oz -o /path/to/common_var/common_var_your_cohort.vcf.gz
 ```
 
@@ -148,18 +170,18 @@ Infine, uniamo le due coorti:
 bcftools merge --threads 64 \
   /path/to/common_var/common_var_SNP_array.vcf.gz \
   /path/to/common_var/common_var_your_cohort.vcf.gz \
-  -Oz -o /path/to/common_var/commonVar_SNParray_yourCohort_hg19.vcf.gz
+  -Oz -o /path/to/common_var/commonVar_SNParray_yourCohort.vcf.gz
 ```
 
 ---
 
 ## 3) Esecuzione della PCA con PLINK 1.9
 
-Una volta ottenuto il file VCF finale unificato (`commonVar_SNParray_yourCohort_hg19.vcf.gz`), possiamo eseguire la PCA:
+Una volta ottenuto il file VCF finale unificato (`commonVar_SNParray_yourCohort.vcf.gz`), possiamo eseguire la PCA:
 
 ```bash
-plink --vcf /path/to/commonVar_SNParray_yourCohort_hg19.vcf.gz \
-      --pca --double-id --out commonVar_SNParray_yourCohort_hg19
+plink --vcf /path/to/commonVar_SNParray_yourCohort.vcf.gz \
+      --pca --double-id --out pca_commonVar_SNParray_yourCohort
 ```
 
 ### Opzioni principali:
@@ -174,17 +196,17 @@ plink --vcf /path/to/commonVar_SNParray_yourCohort_hg19.vcf.gz \
 ## 4) Esecuzione della PCA con PLINK 2
 
 ```bash
-plink2 --vcf /path/to/commonVar_SNParray_yourCohort_hg19.vcf.gz \
-       --make-pgen --out /path/to/pca/commonVar_SNParray_yourCohort_hg19
+plink2 --vcf /path/to/commonVar_SNParray_yourCohort.vcf.gz \
+       --make-pgen --out /path/to/pca/commonVar_SNParray_yourCohort
 ```
 
 Poi:
 
 ```bash
-plink2 --pfile /path/to/pca/commonVar_SNParray_yourCohort_hg19 \
+plink2 --pfile /path/to/pca/commonVar_SNParray_yourCohort \
        --freq counts \
        --pca allele-wts vcols=chrom,ref,alt \
-       --out /path/to/pca/pca_commonVar_SNParray_yourCohort_hg19
+       --out /path/to/pca/pca_commonVar_SNParray_yourCohort
 ```
 
 ## 5) Identificazione e Rimozione degli Outlier
@@ -235,7 +257,7 @@ library(MASS)
 library(ggplot2)
 
 # Specifica il percorso del file .eigenvec
-eigenvectors <- "merged_cohorts.eigenvec" # <-- MODIFICARE CON IL PROPRIO PERCORSO
+eigenvectors <- "pca_commonVar_SNParray_yourCohort.eigenvec" # <-- MODIFICARE CON IL PROPRIO PERCORSO
 # Nota: Plink non scrive un'intestazione, quindi deve essere creata manualmente
 
 # --- Analisi degli Outlier ---

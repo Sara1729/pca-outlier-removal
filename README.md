@@ -66,7 +66,7 @@ Per eseguire questa pipeline sono richiesti:
 
 ---
 
-## Nota su PLINK nel nostro caso
+>> Nota
 
 `Plink` accetta in input file `VCF.gz` accompagnati dal relativo file di indice `.tbi`.
 È fondamentale che i file contengano il campo `GT` (genotipo).

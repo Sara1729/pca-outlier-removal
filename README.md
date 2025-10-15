@@ -25,16 +25,10 @@ Inoltre, nella colonna `INFO` deve essere presente il campo **GT (genotipo)**, c
 
 La PCA riduce la dimensionalità di grandi insiemi di dati trasformando un gruppo di variabili potenzialmente correlate in un numero minore di **componenti principali**, che conservano la maggior parte dell’informazione originale.
 
-Nel nostro contesto:
+Nel nostro contesto le **righe** della matrice di input rappresentano le **varianti** mentre le **colonne** rappresentano i campioni di cui vengono riportati i genotipi.
 
-* Le **righe** della matrice di input rappresentano le **varianti**;
-* Le **colonne** rappresentano i **campioni** e i rispettivi genotipi.
-
-L’analisi mira a identificare gli **autovalori (eigenvalues)** e i **vettori propri (eigenvectors)** del sistema.
-Gli autovalori vengono ordinati in modo decrescente:
-
-* il primo autovalore definisce la **prima componente principale (PC1)**,
-* la sua direzione nello spazio delle componenti è determinata dall’**autovettore corrispondente**.
+L’analisi mira a identificare gli autovalori e gli autovettori del sistema tramite [scomposizione matriciale](https://it.wikipedia.org/wiki/Analisi_delle_componenti_principali) ordinando gli autovalori in ordine decrescente.
+Quindi il primo atuovalore definisce la prima componente principale (PC1) e la sua direzione nello spazio delle componenti è determinata dall'autovettore corrispondente.
 
 ---
 

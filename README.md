@@ -9,7 +9,7 @@ In genetica, l’**analisi delle componenti principali (PCA)** è uno strumento 
 Nel nostro caso, l’obiettivo è mettere in evidenza la **stratificazione genetica della popolazione italiana**.
 Per farlo, sono state selezionate 27575 varianti tramite *Linkage Disequilibrium (LD) pruning*, partendo da una coorte di 1686 individui italiani [[1]](https://doi.org/10.1002/humu.24156).
 
-A partire da un dataset SNP array contenente 555 individui italiani, sono state poi estratte solo le varianti comuni alle 27575 selezionate con LD pruning, ottenendo così una coorte di riferimento di 300 individui con 14861 varianti [[2]](https://doi.org/10.1038/ejhg.2015.233).
+A partire da un dataset [SNP array](https://doi.org/10.1038/ejhg.2015.233) contenente 300 individui italiani, sono state estratte solo le varianti comuni alle 27575 selezionate con LD pruning, ottenendo così una coorte di riferimento di 300 individui italiani con 14861 varianti.
 
 ## Struttura dei dati di input
 

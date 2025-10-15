@@ -36,7 +36,7 @@ Quindi il primo atuovalore definisce la prima componente principale (PC1) e la s
 
 Per eseguire questa pipeline sono richiesti:
 
-* **PLINK v1.9/v2** (installato direttamente o tramite Docker container [1](https://github.com/asherkhb/plink-docker) [2](https://hub.docker.com/r/miguelpmachado/plink_2.0))
+* **PLINK v1.9/v2** (installato direttamente o tramite [Docker container[1]](https://github.com/asherkhb/plink-docker) [[2]](https://hub.docker.com/r/miguelpmachado/plink_2.0))
 
 * **BCFtools** (installato direttamente o tramite [Docker container](https://github.com/samtools/bcftools))
 
@@ -84,7 +84,7 @@ Abbiamo scelto questa nomenclatura della colonna `ID` per rendere più semplice 
 
 * **[SNP_array](https://doi.org/10.1038/ejhg.2015.233)**: utilizzato come coorte di riferimento, è fornito in build hg19, include 300 campioni italiani e contiene 14861 varianti.
 
-* **your_cohort** Seconda coorte da confrontare con SNP_array.
+* **your_cohort**: Seconda coorte da confrontare con SNP_array.
 
 ---
 

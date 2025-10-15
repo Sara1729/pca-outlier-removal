@@ -66,18 +66,17 @@ Per eseguire questa pipeline sono richiesti:
 
 ---
 
->> Nota
+### Nota 1
 
-`Plink` accetta in input file `VCF.gz` accompagnati dal relativo file di indice `.tbi`.
-È fondamentale che i file contengano il campo `GT` (genotipo).
+`Plink` accetta in input file `VCF.gz` accompagnati dal relativo file di indice `.tbi`, è inoltre necessario che i VCF contengano il campo `GT` (genotipo) in quanto `Plink` utilizzerà questo campo per performare PCA.
 
-Nel nostro caso studio, la colonna `CHROM` deve essere in formato `chrN` e la colonna `ID` deve essere costruita come:
+### Nota 2
 
+In questa analisi sotto la colonna `CHROM` gli elemetni devono essere in formato `chrN`, dove `N` indica il l'ennesimo cromosoma, invece ogni elemento della colonna `ID` deve essere riportato nella forma:
 ```
 CHROM:POS:REF:ALT
 ```
-
-Questo formato è essenziale per eseguire correttamente l’intersezione tra diverse coorti.
+Abbiamo scelto questa nomenclatura della colonna `ID` per rendere più semplice l'individuazione delle varianti comuni ai due file gVCF da intersecare.
 
 ---
 

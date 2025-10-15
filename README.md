@@ -20,7 +20,7 @@ In sintesi, la PCA consente di individuare uno spazio a dimensionalità ridotta 
 
 Per eseguire questa pipeline sono richiesti:
 
-* **PLINK v1.9** (installato direttamente o tramite [Docker container](https://github.com/asherkhb/plink-docker))
+* **PLINK v1.9/v2** (installato direttamente o tramite Docker container [1](https://github.com/asherkhb/plink-docker) [2](https://hub.docker.com/r/miguelpmachado/plink_2.0))
 
 * **BCFtools** (installato direttamente o tramite [Docker container](https://github.com/samtools/bcftools))
 
@@ -123,7 +123,7 @@ bcftools isec -n=2 -w1 \
   /path/to/noCHR_newID_fixref_splt_merged_file_SNP_array.vcf.gz \
   /path/to/noCHR_newID_fixref_splt_merged_file_your_cohort.vcf.gz \
   -Oz | bcftools query -f '%ID\n' \
-  > /path/to/common_var/common_ids.txt
+  > /path/to/common_ids.txt
 ```
 
 Nel nostro esempio, il numero di varianti comuni è **14.661**.
@@ -131,9 +131,9 @@ Nel nostro esempio, il numero di varianti comuni è **14.661**.
 Ora estraiamo solo le varianti comuni da ciascun file:
 
 ```bash
-bcftools view --include 'ID=@/path/to/common_var/common_ids.txt' \
+bcftools view --include 'ID=@/path/to/common_ids.txt' \
   /path/to/noCHR_newID_fixref_splt_merged_file_SNP_array.vcf.gz \
-  -Oz -o /path/to/common_var/common_var_SNP_array.vcf.gz
+  -Oz -o /path/to/common_var_SNP_array.vcf.gz
 ```
 
 ```bash

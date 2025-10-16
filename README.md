@@ -62,7 +62,7 @@ Per eseguire questa pipeline sono richiesti:
      ```
 
 * **Genoma di riferimento** in formato `.fa` e relativo indice `.fai` (ad es. hg19 o hg38).
-  Disponibile da [UCSC Genome Browser](https://hgdownload.soe.ucsc.edu/goldenPath/).
+  Disponibile da [UCSC Genome Browser](https://hgdownload.soe.ucsc.edu/downloads.html).
 
 ---
 
